@@ -4,6 +4,7 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { analyze } from "../src/analyze.js";
+import { prepare } from "../src/git.js";
 test("analyzes files and detects architecture", () => {
     const d = mkdtempSync(join(tmpdir(), "repory-test-"));
     try {
@@ -28,6 +29,15 @@ test("reports tracked env files as unavailable security data", () => {
         const a = analyze(d, "fixture");
         assert.equal(a.security.envTracked, true);
         assert.equal(a.scores.security, null);
+    }
+    finally {
+        rmSync(d, { recursive: true, force: true });
+    }
+});
+test("resolves local sources and rejects non-repositories", () => {
+    const d = mkdtempSync(join(tmpdir(), "repory-path-test-"));
+    try {
+        assert.throws(() => prepare(d, { keep: false }), /Invalid repository path or Git repository/);
     }
     finally {
         rmSync(d, { recursive: true, force: true });

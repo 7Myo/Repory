@@ -114,7 +114,7 @@ function detectArchitecture(root, fs) {
     const tree = fs.map((f) => f.path).slice(0, 12);
     return { type, framework, tree };
 }
-function deps(root, fs) {
+function deps(root) {
     let names = [];
     const files = [];
     for (const n of [
@@ -241,7 +241,7 @@ export function analyze(root, source, skip = []) {
             lastCommit: commits[0]?.date.slice(0, 10) || null,
         },
         architecture,
-        dependencies: deps(root, fs),
+        dependencies: deps(root),
         contributors,
         documentation: {
             readme: existsSync(join(root, "README.md")),

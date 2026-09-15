@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
+import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join, relative, extname } from "node:path";
 import { Analysis, FileStat } from "./types.js";
 import { history, git, branch } from "./git.js";
@@ -103,7 +103,7 @@ function detectArchitecture(root: string, fs: FileStat[]) {
   const tree = fs.map((f) => f.path).slice(0, 12);
   return { type, framework, tree };
 }
-function deps(root: string, fs: FileStat[]) {
+function deps(root: string) {
   let names: string[] = [];
   const files: string[] = [];
   for (const n of [
@@ -254,7 +254,7 @@ export function analyze(
       lastCommit: commits[0]?.date.slice(0, 10) || null,
     },
     architecture,
-    dependencies: deps(root, fs),
+    dependencies: deps(root),
     contributors,
     documentation: {
       readme: existsSync(join(root, "README.md")),

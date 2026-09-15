@@ -4,6 +4,48 @@
 analyse un dépôt réel, local ou hébergé sur GitHub, puis affiche un diagnostic
 clair directement dans le terminal. Le projet est créé et maintenu par **7Myo**.
 
+## Installation rapide
+
+Repory fonctionne sur **Windows, Linux et macOS** avec Node.js et Git.
+
+### Windows PowerShell
+
+```powershell
+winget install OpenJS.NodeJS.LTS Git.Git
+npm install --global https://github.com/7Myo/Repory/archive/refs/heads/main.tar.gz
+repory
+```
+
+### Linux
+
+```bash
+sudo apt install nodejs npm git
+npm install --global https://github.com/7Myo/Repory/archive/refs/heads/main.tar.gz
+repory
+```
+
+### macOS
+
+```bash
+brew install node git
+npm install --global https://github.com/7Myo/Repory/archive/refs/heads/main.tar.gz
+repory
+```
+
+La commande `repory` ouvre un prompt : saisissez une URL GitHub ou un chemin
+local, puis validez. Pour analyser directement sans prompt :
+
+```text
+repory https://github.com/7Myo/Repory
+repory .
+```
+
+L'installation depuis l'archive `.tar.gz` est la procédure recommandée pour
+les trois systèmes : elle installe une copie complète avec `dist`, et npm crée
+`repory.cmd` sous Windows ou `repory` sous Linux/macOS. Une installation npm
+publique (`npm install --global repory`) ne sera disponible qu'après
+publication effective du paquet.
+
 Repory ne crée ni serveur, ni compte, ni tableau de bord. Les métriques sont
 calculées à partir des fichiers et de l'historique Git disponibles. Lorsqu'une
 information ne peut pas être calculée, Repory affiche `N/A` au lieu d'inventer
@@ -42,8 +84,7 @@ npm install
 
 ### Installer globalement depuis GitHub
 
-Sur Windows, utilisez l'archive GitHub pour que npm installe une copie réelle
-du paquet et de `dist` :
+L'archive GitHub fonctionne sur Windows, Linux et macOS :
 
 ```bash
 npm install --global https://github.com/7Myo/Repory/archive/refs/heads/main.tar.gz
@@ -57,8 +98,8 @@ repory https://github.com/7Myo/Repory
 ```
 
 Sur Windows, npm ajoute normalement le dossier global des exécutables au
-`PATH`. Si `repory` n'est pas reconnu juste après l'installation, fermez puis
-rouvrez PowerShell ou CMD, puis vérifiez :
+`PATH`. Si `repory` n'est pas reconnu, fermez puis rouvrez PowerShell ou CMD,
+puis vérifiez :
 
 ```powershell
 npm prefix --location=global
@@ -76,9 +117,7 @@ npm install --global https://github.com/7Myo/Repory/archive/refs/heads/main.tar.
 
 Le build `dist` est versionné dans Git et inclus dans l'archive. Le hook
 `prepack` reconstruit ces fichiers avant un paquet npm, et le champ `bin`
-génère `repory.cmd` sur Windows. Avec certaines versions npm sous Windows,
-`npm install --global github:7Myo/Repory` conserve une jonction vers un clone
-temporaire supprimé ensuite ; utilisez l'URL `.tar.gz` ci-dessus.
+génère le lanceur adapté au système.
 
 ## Lancer une analyse
 
@@ -124,8 +163,8 @@ publié sur GitHub.
 
 ### Mode interactif
 
-Après une installation globale publiée (`npm install --global repory`), la
-commande `repory` sans source ouvre le même prompt :
+Après l'installation par archive, la commande `repory` sans source ouvre le
+même prompt :
 
 ```bash
 repory
