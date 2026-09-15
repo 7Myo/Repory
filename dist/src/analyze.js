@@ -71,7 +71,15 @@ function files(root, skip) {
     walk(root);
     return out;
 }
-function architecture(root, fs) {
+function readText(root, path) {
+    try {
+        return readFileSync(join(root, path), "utf8");
+    }
+    catch {
+        return "";
+    }
+}
+function detectArchitecture(root, fs) {
     const names = new Set(fs.map((f) => f.path));
     let framework = null;
     let type = "Application";
@@ -160,18 +168,17 @@ export function analyze(root, source, skip = []) {
     }));
     const totalLines = fs.reduce((n, f) => n + f.lines, 0), totalBytes = fs.reduce((n, f) => n + f.bytes, 0), complexity = fs.reduce((n, f) => n + f.complexity, 0);
     const doc = fs.filter((f) => /README|docs\/|\.md$/i.test(f.path));
-    const todo = fs.reduce((n, f) => n +
-        (readFileSync(join(root, f.path), "utf8").match(/TODO/g) || []).length, 0);
-    const fixme = fs.reduce((n, f) => n +
-        (readFileSync(join(root, f.path), "utf8").match(/FIXME/g) || []).length, 0);
+    const contents = new Map(fs.map((f) => [f.path, readText(root, f.path)]));
+    const todo = [...contents.values()].reduce((n, value) => n + (value.match(/TODO/g) || []).length, 0);
+    const fixme = [...contents.values()].reduce((n, value) => n + (value.match(/FIXME/g) || []).length, 0);
     const suspicious = fs.flatMap((f) => {
-        const t = readFileSync(join(root, f.path), "utf8");
+        const t = contents.get(f.path) || "";
         return [
             ...t.matchAll(/(?:AKIA[0-9A-Z]{16}|-----BEGIN .* PRIVATE KEY-----|(?:api[_-]?key|secret)\s*[:=]\s*['"][^'"]{8,})/gi),
         ].map(() => f.path);
     });
     const securityFiles = fs.filter((f) => f.path === ".env").length > 0;
-    const architecture = architectureFn(root, fs);
+    const architecture = detectArchitecture(root, fs);
     const score = (v) => Math.max(0, Math.min(100, Math.round(v)));
     const archScore = score(architecture.type === "Monorepo" ? 90 : 70), complexityScore = score(100 - Math.min(100, (complexity / (fs.length || 1)) * 8)), docScore = score((existsSync(join(root, "README.md")) ? 45 : 0) +
         (existsSync(join(root, "docs")) ? 25 : 0) +
@@ -240,9 +247,7 @@ export function analyze(root, source, skip = []) {
             readme: existsSync(join(root, "README.md")),
             docs: existsSync(join(root, "docs")),
             examples: fs.some((f) => /example|sample/i.test(f.path)),
-            comments: fs.reduce((n, f) => n +
-                (readFileSync(join(root, f.path), "utf8").match(/\/\/|# /g) || [])
-                    .length, 0),
+            comments: fs.reduce((n, f) => n + ((contents.get(f.path) || "").match(/\/\/|# /g) || []).length, 0),
             coverage: docScore,
         },
         codeHealth: {
@@ -277,4 +282,3 @@ export function analyze(root, source, skip = []) {
         durationMs: Date.now() - started,
     };
 }
-const architectureFn = architecture;

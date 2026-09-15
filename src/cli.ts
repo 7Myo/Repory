@@ -5,6 +5,8 @@ import { markdown, terminal } from "./report.js";
 import { Options } from "./types.js";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 const help = `repory — Understand your codebase\n\nUsage: repory <github-url|local-path> [options]\n\nOptions:\n  --json              Emit machine-readable JSON only\n  --markdown          Emit a Markdown report\n  --no-color          Disable terminal colors\n  --quiet             Suppress progress messages\n  --ci                CI mode (equivalent to --no-color --quiet)\n  --verbose           Include diagnostic errors\n  --keep              Keep a temporary clone\n  --branch <name>     Clone a specific branch\n  --depth <n>         Shallow clone depth\n  --ignore <dir>      Ignore an additional directory (repeatable)\n  --explain           Explain score calculations\n  --help              Show this help\n  --version           Show version`;
 function parse(argv: string[]): { input?: string; o: Options } {
   const o: Options = {
@@ -32,10 +34,22 @@ function parse(argv: string[]): { input?: string; o: Options } {
     } else if (x === "--verbose") o.verbose = true;
     else if (x === "--keep") o.keep = true;
     else if (x === "--explain") o.explain = true;
-    else if (x === "--branch") o.branch = argv[++i];
-    else if (x === "--depth") o.depth = Number(argv[++i]);
-    else if (x === "--ignore") o.ignore.push(argv[++i]);
-    else if (!x.startsWith("-")) input = x;
+    else if (x === "--branch") {
+      const value = argv[++i];
+      if (!value || value.startsWith("-"))
+        throw new Error("--branch requires a name.");
+      o.branch = value;
+    } else if (x === "--depth") {
+      const value = Number(argv[++i]);
+      if (!Number.isInteger(value) || value < 1)
+        throw new Error("--depth requires a positive integer.");
+      o.depth = value;
+    } else if (x === "--ignore") {
+      const value = argv[++i];
+      if (!value || value.startsWith("-"))
+        throw new Error("--ignore requires a directory.");
+      o.ignore.push(value);
+    } else if (!x.startsWith("-")) input = x;
   }
   return { input, o };
 }
@@ -48,7 +62,14 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     console.log("0.1.0");
     return 0;
   }
-  const { input, o } = parse(argv);
+  let input: string | undefined;
+  let o: Options;
+  try {
+    ({ input, o } = parse(argv));
+  } catch (e) {
+    console.error(`✗ ${e instanceof Error ? e.message : String(e)}`);
+    return 2;
+  }
   if (!input) {
     return interactive(o);
   }
@@ -103,11 +124,16 @@ function run(input: string, o: Options): number {
     }
   }
 }
-main()
-  .then((code) => {
-    process.exitCode = code;
-  })
-  .catch((e) => {
-    console.error(`✗ ${e instanceof Error ? e.message : String(e)}`);
-    process.exitCode = 1;
-  });
+if (
+  process.argv[1] &&
+  pathToFileURL(resolve(process.argv[1])).href === import.meta.url
+) {
+  main()
+    .then((code) => {
+      process.exitCode = code;
+    })
+    .catch((e) => {
+      console.error(`✗ ${e instanceof Error ? e.message : String(e)}`);
+      process.exitCode = 1;
+    });
+}

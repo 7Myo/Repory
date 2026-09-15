@@ -71,7 +71,7 @@ le `PATH` utilisateur. Vous pouvez aussi lancer directement
 
 ```powershell
 npm uninstall --global repory
-npm install --global github:7Myo/Repory
+npm install --global https://github.com/7Myo/Repory/archive/refs/heads/main.tar.gz
 ```
 
 Le build `dist` est versionné dans Git et inclus dans l'archive. Le hook

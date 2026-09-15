@@ -1,7 +1,7 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 export function git(cwd: string, args: string[]): string {
   const r = spawnSync("git", args, { cwd, encoding: "utf8" });
   if (r.error)
@@ -29,6 +29,9 @@ export function prepare(
       git(process.cwd(), args);
     } catch (e) {
       rmSync(dir, { recursive: true, force: true });
+      if (e instanceof Error && e.message.startsWith("Git is required")) {
+        throw e;
+      }
       throw new Error(
         "Repository could not be accessed. It may be private or unavailable.",
       );
@@ -42,7 +45,7 @@ export function prepare(
       isRemote: true,
     };
   }
-  const path = join(process.cwd(), input);
+  const path = resolve(process.cwd(), input);
   try {
     git(path, ["rev-parse", "--show-toplevel"]);
   } catch {
@@ -64,7 +67,16 @@ export function history(path: string) {
     add: number;
     del: number;
   }[] = [];
-  let current: any;
+  let current:
+    | {
+        author: string;
+        date: string;
+        subject: string;
+        files: number;
+        add: number;
+        del: number;
+      }
+    | undefined;
   for (const line of log.split(/\r?\n/)) {
     if (!line) continue;
     if (!/^\d+\t/.test(line)) {
