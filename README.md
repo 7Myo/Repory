@@ -42,11 +42,11 @@ npm install
 
 ### Installer globalement depuis GitHub
 
-Pour installer la commande `repory` directement depuis GitHub, npm compile
-automatiquement le CLI pendant l'installation :
+Sur Windows, utilisez l'archive GitHub pour que npm installe une copie réelle
+du paquet et de `dist` :
 
 ```bash
-npm install --global github:7Myo/Repory
+npm install --global https://github.com/7Myo/Repory/archive/refs/heads/main.tar.gz
 repory
 ```
 
@@ -74,10 +74,11 @@ npm uninstall --global repory
 npm install --global github:7Myo/Repory
 ```
 
-Le build `dist` est versionné dans Git pour que les installations GitHub
-disposent immédiatement de l'entrée CLI. Le hook `prepack` reconstruit ces
-fichiers avant un paquet npm, et le champ `bin` génère `repory.cmd` sur
-Windows.
+Le build `dist` est versionné dans Git et inclus dans l'archive. Le hook
+`prepack` reconstruit ces fichiers avant un paquet npm, et le champ `bin`
+génère `repory.cmd` sur Windows. Avec certaines versions npm sous Windows,
+`npm install --global github:7Myo/Repory` conserve une jonction vers un clone
+temporaire supprimé ensuite ; utilisez l'URL `.tar.gz` ci-dessus.
 
 ## Lancer une analyse
 
