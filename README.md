@@ -53,6 +53,16 @@ npm start -- .
 Ces commandes affichent directement un résumé lisible. Il n'y a pas de serveur
 à démarrer et aucune configuration supplémentaire n'est nécessaire.
 
+Sans argument, Repory ouvre un prompt interactif :
+
+```bash
+npm run dev
+```
+
+Répondez à `Dépôt à analyser :` avec une URL GitHub ou un chemin local. Une
+entrée vide est refusée et `Ctrl+C` ou `Ctrl+D` interrompt proprement la
+commande.
+
 ### URL GitHub
 
 ```bash
@@ -72,6 +82,24 @@ npm run dev -- ./mon-projet
 
 Le chemin local peut être absolu ou relatif. Le dépôt n'a pas besoin d'être
 publié sur GitHub.
+
+### Installation globale depuis ce projet
+
+Pour obtenir la commande `repory` après l'installation :
+
+```bash
+npm install -g .
+repory
+```
+
+La commande sans source ouvre alors le même prompt interactif. Pour analyser
+directement une source, ajoutez-la simplement :
+
+```bash
+repory https://github.com/7Myo/Repory
+```
+
+Depuis le dépôt, `npm run repory -- .` fournit aussi un raccourci npm équivalent.
 
 ## Exemple de sortie
 

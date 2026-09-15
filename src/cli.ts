@@ -4,6 +4,8 @@ import { prepare } from "./git.js";
 import { markdown, terminal } from "./report.js";
 import { Options } from "./types.js";
 import { fileURLToPath } from "node:url";
+import { createInterface } from "node:readline/promises";
+import { stdin as input, stdout as output } from "node:process";
 const help = `repory — Understand your codebase\n\nUsage: repory <github-url|local-path> [options]\n\nOptions:\n  --json              Emit machine-readable JSON only\n  --markdown          Emit a Markdown report\n  --no-color          Disable terminal colors\n  --quiet             Suppress progress messages\n  --ci                CI mode (equivalent to --no-color --quiet)\n  --verbose           Include diagnostic errors\n  --keep              Keep a temporary clone\n  --branch <name>     Clone a specific branch\n  --depth <n>         Shallow clone depth\n  --ignore <dir>      Ignore an additional directory (repeatable)\n  --explain           Explain score calculations\n  --help              Show this help\n  --version           Show version`;
 function parse(argv: string[]): { input?: string; o: Options } {
   const o: Options = {
@@ -38,8 +40,8 @@ function parse(argv: string[]): { input?: string; o: Options } {
   }
   return { input, o };
 }
-export function main(argv = process.argv.slice(2)) {
-  if (argv.includes("--help") || argv.length === 0) {
+export async function main(argv = process.argv.slice(2)): Promise<number> {
+  if (argv.includes("--help")) {
     console.log(help);
     return 0;
   }
@@ -49,9 +51,32 @@ export function main(argv = process.argv.slice(2)) {
   }
   const { input, o } = parse(argv);
   if (!input) {
-    console.error("✗ A repository URL or local path is required.");
-    return 2;
+    return interactive(o);
   }
+  return run(input, o);
+}
+async function interactive(o: Options): Promise<number> {
+  const rl = createInterface({ input, output });
+  try {
+    console.log("Repory — Understand your codebase");
+    console.log("Entrez une URL GitHub ou un chemin local.");
+    const source = (await rl.question("Dépôt à analyser : ")).trim();
+    if (!source) {
+      console.error("✗ Une URL ou un chemin est requis.");
+      return 2;
+    }
+    return run(source, o);
+  } catch (e) {
+    if (e instanceof Error && e.message.includes("aborted")) {
+      console.error("\n✗ Saisie interrompue.");
+      return 2;
+    }
+    throw e;
+  } finally {
+    rl.close();
+  }
+}
+function run(input: string, o: Options): number {
   let prepared;
   try {
     prepared = prepare(input, o);
@@ -80,4 +105,11 @@ export function main(argv = process.argv.slice(2)) {
   }
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1])
-  process.exitCode = main();
+  main()
+    .then((code) => {
+      process.exitCode = code;
+    })
+    .catch((e) => {
+      console.error(`✗ ${e instanceof Error ? e.message : String(e)}`);
+      process.exitCode = 1;
+    });
