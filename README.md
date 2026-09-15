@@ -40,6 +40,11 @@ repory https://github.com/7Myo/Repory
 repory .
 ```
 
+L'interface affiche un en-tête, les étapes d'analyse, des scores lisibles, les
+sections projet/dépendances/hotspots et un résumé DNA final. Les couleurs sont
+activées uniquement dans un terminal interactif; les sorties JSON, Markdown et
+CI restent strictement exploitables par des scripts.
+
 L'installation depuis l'archive `.tar.gz` est la procédure recommandée pour
 les trois systèmes : elle installe une copie complète avec `dist`, et npm crée
 `repory.cmd` sous Windows ou `repory` sous Linux/macOS. Une installation npm

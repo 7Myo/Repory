@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { analyze } from "./analyze.js";
 import { prepare } from "./git.js";
-import { markdown, terminal } from "./report.js";
+import { markdown, progress, terminal, welcome } from "./report.js";
 import { Options } from "./types.js";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
@@ -77,10 +77,13 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
 }
 async function interactive(o: Options): Promise<number> {
   const rl = createInterface({ input, output });
+  const color = !o.noColor && Boolean(output.isTTY);
   try {
-    console.log("Repory — Understand your codebase");
-    console.log("Entrez une URL GitHub ou un chemin local.");
-    const source = (await rl.question("Dépôt à analyser : ")).trim();
+    process.stdout.write(welcome(color));
+    const prompt = color
+      ? "\x1b[36m›\x1b[0m Dépôt à analyser : "
+      : "Dépôt à analyser : ";
+    const source = (await rl.question(prompt)).trim();
     if (!source) {
       console.error("✗ Une URL ou un chemin est requis.");
       return 2;
@@ -98,13 +101,19 @@ async function interactive(o: Options): Promise<number> {
 }
 function run(input: string, o: Options): number {
   let prepared;
+  const decorated = !o.json && !o.markdown && !o.quiet && !o.ci;
+  const color = !o.noColor && Boolean(process.stdout.isTTY);
   try {
+    if (decorated) progress("Préparation du dépôt", color);
     prepared = prepare(input, o);
+    if (decorated)
+      progress("Analyse des fichiers et de l’historique Git", color);
     const a = analyze(prepared.path, input, o.ignore);
+    if (decorated) progress("Rapport prêt", color);
     if (o.json) process.stdout.write(JSON.stringify(a, null, 2) + "\n");
     else if (o.markdown) process.stdout.write(markdown(a));
     else {
-      if (!o.quiet) process.stdout.write(terminal(a, !o.noColor));
+      if (!o.quiet || o.ci) process.stdout.write(terminal(a, false));
       if (o.explain)
         process.stdout.write(
           "\nSCORE EXPLANATION\nScores are deterministic: file complexity, repository structure, documentation presence, tests, history, and security indicators. Unavailable data is reported as N/A.\n",
@@ -119,7 +128,7 @@ function run(input: string, o: Options): number {
   } finally {
     if (prepared) {
       prepared.cleanup();
-      if (prepared.isRemote && !o.keep && !o.json && !o.markdown && !o.quiet)
+      if (prepared.isRemote && !o.keep && decorated)
         console.error("Temporary repository cleaned.");
     }
   }

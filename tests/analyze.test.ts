@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { analyze } from "../src/analyze.js";
 import { prepare } from "../src/git.js";
+import { terminal } from "../src/report.js";
 test("analyzes files and detects architecture", () => {
   const d = mkdtempSync(join(tmpdir(), "repory-test-"));
   try {
@@ -44,6 +45,19 @@ test("resolves local sources and rejects non-repositories", () => {
       () => prepare(d, { keep: false }),
       /Invalid repository path or Git repository/,
     );
+  } finally {
+    rmSync(d, { recursive: true, force: true });
+  }
+});
+
+test("renders a readable report without ANSI escapes", () => {
+  const d = mkdtempSync(join(tmpdir(), "repory-report-test-"));
+  try {
+    writeFileSync(join(d, "README.md"), "# report");
+    const report = terminal(analyze(d, "fixture"), false);
+    assert.match(report, /Repository DNA/);
+    assert.match(report, /SCORES/);
+    assert.doesNotMatch(report, /\x1b\[/);
   } finally {
     rmSync(d, { recursive: true, force: true });
   }
