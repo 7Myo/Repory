@@ -74,9 +74,10 @@ npm uninstall --global repory
 npm install --global github:7Myo/Repory
 ```
 
-Le hook `prepare` garantit la présence de `dist/src/cli.js` pour les
-installations GitHub, le hook `prepack` reconstruit les fichiers avant un
-paquet npm, et le champ `bin` génère `repory.cmd` sur Windows.
+Le build `dist` est versionné dans Git pour que les installations GitHub
+disposent immédiatement de l'entrée CLI. Le hook `prepack` reconstruit ces
+fichiers avant un paquet npm, et le champ `bin` génère `repory.cmd` sur
+Windows.
 
 ## Lancer une analyse
 
