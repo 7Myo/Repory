@@ -1,8 +1,8 @@
-# Repory
+# Repory v1.1.0
 
 **Understand your codebase.** Repory est un outil en ligne de commande qui
 analyse un dépôt réel, local ou hébergé sur GitHub, puis affiche un diagnostic
-clair directement dans le terminal. Le projet est créé et maintenu par **7Myo**.
+clair directement dans le terminal. Le projet est créé par **7Myo**.
 
 ## Installation rapide
 
@@ -40,10 +40,10 @@ repory https://github.com/7Myo/Repory
 repory .
 ```
 
-L'interface affiche un en-tête, les étapes d'analyse, des scores lisibles, les
-sections projet/dépendances/hotspots et un résumé DNA final. Les couleurs sont
-activées uniquement dans un terminal interactif; les sorties JSON, Markdown et
-CI restent strictement exploitables par des scripts.
+L'interface v1.1 affiche un en-tête Repory, les étapes d'analyse, des scores
+lisibles, les sections projet/dépendances/hotspots et un résumé DNA final. Les
+couleurs ANSI sont activées uniquement dans un terminal interactif; les sorties
+JSON, Markdown et CI restent strictement exploitables par des scripts.
 
 L'installation depuis l'archive `.tar.gz` est la procédure recommandée pour
 les trois systèmes : elle installe une copie complète avec `dist`, et npm crée
@@ -56,7 +56,7 @@ calculées à partir des fichiers et de l'historique Git disponibles. Lorsqu'une
 information ne peut pas être calculée, Repory affiche `N/A` au lieu d'inventer
 une valeur.
 
-## Démarrage en deux commandes
+## Démarrage depuis le code source
 
 Depuis un clone du projet, le parcours le plus court est :
 
@@ -67,8 +67,8 @@ npm run repory
 
 Repory compile le CLI, ouvre le prompt `Dépôt à analyser :`, puis attend une
 URL GitHub ou un chemin local. Entrez par exemple
-`https://github.com/7Myo/Repory` ou `.`. Pour fournir directement la source
-sans prompt, utilisez `npm run repory -- <url-ou-chemin>`.
+`https://github.com/7Myo/Repory` ou `.`. Pour fournir directement la source,
+utilisez `npm run repory -- <url-ou-chemin>`.
 
 ## Prérequis
 

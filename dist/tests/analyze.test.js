@@ -57,3 +57,14 @@ test("renders a readable report without ANSI escapes", () => {
         rmSync(d, { recursive: true, force: true });
     }
 });
+test("adds ANSI colors only when requested", () => {
+    const d = mkdtempSync(join(tmpdir(), "repory-color-test-"));
+    try {
+        writeFileSync(join(d, "README.md"), "# report");
+        const report = terminal(analyze(d, "fixture"), true);
+        assert.match(report, /\x1b\[/);
+    }
+    finally {
+        rmSync(d, { recursive: true, force: true });
+    }
+});

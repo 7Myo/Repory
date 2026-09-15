@@ -70,7 +70,7 @@ export async function main(argv = process.argv.slice(2)) {
         return 0;
     }
     if (argv.includes("--version")) {
-        console.log("0.1.0");
+        console.log("1.1.0");
         return 0;
     }
     let input;
