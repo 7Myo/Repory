@@ -228,7 +228,7 @@ export function analyze(root, source, skip = []) {
             source,
             path: root,
             branch: branch(root),
-            isRemote: source.startsWith("http"),
+            isRemote: source.startsWith("http") || source.startsWith("git@"),
         },
         project: {
             languages,
