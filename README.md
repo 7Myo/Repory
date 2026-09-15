@@ -40,6 +40,43 @@ cd Repory
 npm install
 ```
 
+### Installer globalement depuis GitHub
+
+Pour installer la commande `repory` directement depuis GitHub, npm compile
+automatiquement le CLI pendant l'installation :
+
+```bash
+npm install --global github:7Myo/Repory
+repory
+```
+
+La commande `repory` ouvre le prompt interactif. Pour analyser directement :
+
+```bash
+repory https://github.com/7Myo/Repory
+```
+
+Sur Windows, npm ajoute normalement le dossier global des exécutables au
+`PATH`. Si `repory` n'est pas reconnu juste après l'installation, fermez puis
+rouvrez PowerShell ou CMD, puis vérifiez :
+
+```powershell
+npm prefix --location=global
+where.exe repory
+```
+
+Le dossier retourné par `npm prefix --location=global` doit être présent dans
+le `PATH` utilisateur. Vous pouvez aussi lancer directement
+`<prefix>\repory.cmd`. Désinstallez une ancienne copie avant de réinstaller :
+
+```powershell
+npm uninstall --global repory
+npm install --global github:7Myo/Repory
+```
+
+Le hook `prepare` construit `dist/src/cli.js` pour les installations GitHub,
+et le champ `bin` génère `repory.cmd` sur Windows.
+
 ## Lancer une analyse
 
 ### Lancer depuis les sources
